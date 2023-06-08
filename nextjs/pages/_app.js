@@ -4,13 +4,16 @@ import fetchCategories from '../utils/categoryProvider'
 import 'tailwindcss/tailwind.css';
 import { ApolloProvider } from "@apollo/client";
 import client from "../apollo-client";
+import { AuthProvider } from '../context/authContext';
 
 function Ecommerce({ Component, pageProps, categories }) {
   return (
     <ApolloProvider client={client}>
-      <Layout categories={categories}>
-        <Component {...pageProps} />
-      </Layout>
+      <AuthProvider>
+        <Layout categories={categories}>
+          <Component {...pageProps} />
+        </Layout>
+      </AuthProvider>
     </ApolloProvider>
   )
 }

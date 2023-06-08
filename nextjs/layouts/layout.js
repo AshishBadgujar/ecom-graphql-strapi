@@ -3,8 +3,11 @@ import { slugify } from '../utils/helpers'
 import 'react-toastify/dist/ReactToastify.css'
 import { ToastContainer } from 'react-toastify'
 import { navItemLength } from '../ecommerce.config'
+import { useAuth } from '../context/authContext'
 
 export default function Layout({ children, categories }) {
+  const { isAuth, logout } = useAuth()
+
   if (categories.length > navItemLength) {
     categories = categories.slice(0, navItemLength)
   }
@@ -77,11 +80,19 @@ export default function Layout({ children, categories }) {
             flex flex-1
             justify-end sm:m-0
           ">
-            <Link href="/admin">
-              <a aria-label="Admin panel">
-                <p className="text-sm font-semibold">Admins</p>
-              </a>
-            </Link>
+            {isAuth ?
+              <Link href="/">
+                <a aria-label="Admin panel">
+                  <p className="text-sm font-semibold" onClick={logout}>Logout</p>
+                </a>
+              </Link>
+              :
+              <Link href="/auth">
+                <a aria-label="Admin panel">
+                  <p className="text-sm font-semibold">Login</p>
+                </a>
+              </Link>
+            }
           </div>
         </div>
       </footer>
