@@ -3,12 +3,11 @@ import React, { useState, createContext, useContext, useEffect } from "react";
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-    const localStorageValue = localStorage.getItem("jwt")
-    // Use this value as the defalt value for the state 
-    const [isAuth, setIsAuth] = useState(localStorageValue);
+    const [isAuth, setIsAuth] = useState('');
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        setIsAuth(localStorage.getItem("jwt"))
         if (isAuth) {
             setLoading(false);
         } else {

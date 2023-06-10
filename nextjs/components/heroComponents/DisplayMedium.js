@@ -13,7 +13,7 @@ const DisplayMedium = ({ imageSrc, title, subtitle, link }) => {
           </div>
           <div className="mb-8">
             <p className="text-3xl font-semibold mb-1">{title}</p>
-            <p className="text-xs text-gray-700">{subtitle}</p>
+            <p className="text-xs text-gray-700">₹ {subtitle}</p>
           </div>
         </a>
       </Link>

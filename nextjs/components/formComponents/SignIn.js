@@ -28,7 +28,7 @@ export default function SignIn({ toggleFormState }) {
   }
   if (data) {
     localStorage.setItem('jwt', data.login.jwt)
-    setIsAuth(data.register.jwt)
+    setIsAuth(data.login.jwt)
     router.push('/')
   }
   return (
