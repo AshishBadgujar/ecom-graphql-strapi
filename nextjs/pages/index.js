@@ -12,10 +12,10 @@ const Home = () => {
 
   const { data, loading, error } = useQuery(GET_ALL_PRODUCTS)
   if (loading) return <h1>loading...</h1>
-  if (data) {
-    console.log("data=", data)
-  }
+  if (data) console.log(data)
+  if (error) console.log(error)
 
+  const products = data.products.data
   return (
     <>
       <CartLink />
@@ -31,20 +31,20 @@ const Home = () => {
           <div className="pt-4 pl-2 sm:pt-12 sm:pl-12 flex flex-col">
             <Tag
               year="2021"
-              category={data.products.data[0].attributes.category.data.attributes.name}
+              category={products[0].attributes.category.data.attributes.name}
             />
             <Center
-              price={data.products.data[0].attributes.price}
-              title={data.products.data[0].attributes.name}
-              link={`/product/${slugify(data.products.data[0].attributes.name)}`}
+              price={products[0].attributes.price}
+              title={products[0].attributes.name}
+              link={`/product/${products[0].id}`}
             />
             <Footer
-              designer={data.products.data[0].attributes.brand}
+              designer={products[0].attributes.brand}
             />
           </div>
           <div className="flex flex-1 justify-center items-center relative">
             <Showcase
-              imageSrc={BACKEND_URL + data.products.data[0].attributes.image.data.attributes.url}
+              imageSrc={BACKEND_URL + products[0].attributes.image.data.attributes.url}
             />
             <div className="absolute
               w-48 h-48 sm:w-72 sm:h-72 xl:w-88 xl:h-88
@@ -57,12 +57,12 @@ const Home = () => {
         grid-cols-1
         grid gap-4 my-4 
       ">
-        {data.products.data?.slice(1, 3).map(item =>
+        {products?.slice(1, 3).map(item =>
           <DisplayMedium
             imageSrc={BACKEND_URL + item.attributes.image.data.attributes.url}
             title={item.attributes.name}
             subtitle={item.attributes.price}
-            link={`/product/${slugify(item.attributes.name)}`}
+            link={`/product/${item.id}`}
           />
         )}
       </div>
@@ -71,12 +71,12 @@ const Home = () => {
         <p className="text-gray-600 text-sm">Find the perfect piece or accessory to finish off your favorite room in the house.</p>
       </div>
       <div className="my-8 flex flex-col lg:flex-row justify-between flex flex-wrap">
-        {data.products.data?.slice(3).map(item =>
+        {products?.slice(3).map(item =>
           <DisplaySmall
             imageSrc={BACKEND_URL + item.attributes.image.data.attributes.url}
             title={item.attributes.name}
             subtitle={item.attributes.price}
-            link={`/product/${slugify(item.attributes.name)}`}
+            link={`/product/${item.id}`}
           />
         )}
 

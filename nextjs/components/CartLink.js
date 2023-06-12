@@ -3,7 +3,6 @@ import { ContextProviderComponent, SiteContext } from '../context/mainContext'
 import { FaShoppingCart, FaCircle } from 'react-icons/fa';
 import Link from "next/link"
 import { colors } from '../theme'
-import { useAuth } from '../context/authContext';
 const { primary } = colors
 
 function CartLink(props) {
@@ -35,14 +34,11 @@ function CartLink(props) {
 }
 
 function CartLinkWithContext(props) {
-  const { isAuth, logout } = useAuth()
   return (
     <ContextProviderComponent>
-      {isAuth &&
-        <SiteContext.Consumer>
-          {context => <CartLink {...props} context={context} />}
-        </SiteContext.Consumer>
-      }
+      <SiteContext.Consumer>
+        {context => <CartLink {...props} context={context} />}
+      </SiteContext.Consumer>
     </ContextProviderComponent>
   )
 }

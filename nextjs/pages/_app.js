@@ -5,14 +5,16 @@ import 'tailwindcss/tailwind.css';
 import { ApolloProvider } from "@apollo/client";
 import client from "../apollo-client";
 import { AuthProvider } from '../context/authContext';
-
+import { CartProvider } from 'react-use-cart'
 function Ecommerce({ Component, pageProps, categories }) {
   return (
     <ApolloProvider client={client}>
       <AuthProvider>
-        <Layout categories={categories}>
-          <Component {...pageProps} />
-        </Layout>
+        <CartProvider>
+          <Layout categories={categories}>
+            <Component {...pageProps} />
+          </Layout>
+        </CartProvider>
       </AuthProvider>
     </ApolloProvider>
   )

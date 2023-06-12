@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Head from 'next/head'
 import { SiteContext, ContextProviderComponent } from "../context/mainContext"
 import DENOMINATION from "../utils/currencyProvider"
@@ -7,6 +7,8 @@ import Link from "next/link"
 import Image from "../components/Image"
 import { v4 as uuid } from "uuid"
 import Button from '../components/Button'
+import { useCart } from 'react-use-cart'
+import { BACKEND_URL } from "../apollo-client";
 
 // import {
 //   CardElement,
@@ -49,19 +51,25 @@ const Input = ({ onChange, value, name, placeholder }) => (
   />
 )
 
-const Checkout = ({ context }) => {
+const Checkout = () => {
+  const [renderClientSideComponent, setRenderClientSideComponent] = useState(false)
+  useEffect(() => {
+    setRenderClientSideComponent(true)
+  }, [])
+  const { isEmpty, items, cartTotal, removeItem, addItem, emptyCart } = useCart()
+  if (isEmpty) console.log(isEmpty)
+  if (items) console.log(items)
+
   const [errorMessage, setErrorMessage] = useState(null)
   const [orderCompleted, setOrderCompleted] = useState(false)
   const [input, setInput] = useState({
-    name: "",
-    email: "",
-    street: "",
+    user: "",
+    shippingAddress: "",
     city: "",
-    postal_code: "",
+    pincode: "",
     state: "",
   })
 
-  const stripe = false
   // const stripe = useStripe()
   // const elements = useElements()
 
@@ -70,19 +78,30 @@ const Checkout = ({ context }) => {
     setInput({ ...input, [e.target.name]: e.target.value })
   }
 
+  const makePaymentRequest = async (allformData) => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/orders`, {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + localStorage.getItem("jwt")
+        },
+        body: JSON.stringify(allformData)
+
+      })
+      if (res.status != 200) throw Error('Payment failed')
+      return await res.json()
+    } catch (err) {
+      console.log(err)
+      setError(true)
+    }
+  }
+
   const handleSubmit = async event => {
     event.preventDefault()
-    const { name, email, street, city, postal_code, state } = input
-    const { total, clearCart } = context
+    const { user, shippingAddress, city, pincode, state } = input
 
-    // if (!stripe || !elements) {
-    // Stripe.js has not loaded yet. Make sure to disable
-    // form submission until Stripe.js has loaded.
-    //   return
-    // }
-
-    // Validate input
-    if (!street || !city || !postal_code || !state) {
+    if (!shippingAddress || !city || !pincode || !state) {
       setErrorMessage("Please fill in the form!")
       return
     }
@@ -107,20 +126,19 @@ const Checkout = ({ context }) => {
     }
 
     const order = {
-      email,
-      amount: total,
-      address: state, // should this be {street, city, postal_code, state} ?
-      payment_method_id: paymentMethod.id,
-      receipt_email: "customer@example.com",
-      id: uuid(),
+      amount: cartTotal,
+      user,
+      shippingAddress,
+      city,
+      pincode,
+      state
     }
+    let res = await makePaymentRequest(order)
+    console.log("res=", res)
     // TODO call API
     setOrderCompleted(true)
-    clearCart()
+    emptyCart()
   }
-
-  const { numberOfItemsInCart, cart, total } = context
-  const cartEmpty = numberOfItemsInCart === Number(0)
 
   if (orderCompleted) {
     return (
@@ -129,6 +147,7 @@ const Checkout = ({ context }) => {
       </div>
     )
   }
+  if (!renderClientSideComponent) return null
 
   return (
     <div className="flex flex-col items-center pb-10">
@@ -155,18 +174,18 @@ const Checkout = ({ context }) => {
           </Link>
         </div>
 
-        {cartEmpty ? (
+        {isEmpty ? (
           <h3>No items in cart.</h3>
         ) : (
           <div className="flex flex-col">
             <div className="">
-              {cart.map((item, index) => {
+              {items.map((item, index) => {
                 return (
                   <div className="border-b py-10" key={index}>
                     <div className="flex items-center">
                       <Image
                         className="w-32 m-0"
-                        src={item.image}
+                        src={item.url}
                         alt={item.name}
                       />
                       <p className="m-0 pl-10 text-gray-600">
@@ -184,27 +203,27 @@ const Checkout = ({ context }) => {
             </div>
             <div className="flex flex-1 flex-col md:flex-row">
               <div className="flex flex-1 pt-8 flex-col">
-                <div className="mt-4 border-t pt-10">
+                <div className="mt-4 pt-10">
                   <form onSubmit={handleSubmit}>
                     {errorMessage ? <span className='text-red-500'>{errorMessage}</span> : ""}
-                    <Input
+                    {/* <Input
                       onChange={onChange}
                       value={input.name}
                       name="name"
                       placeholder="Cardholder name"
-                    />
+                    /> */}
                     {/* <CardElement className="mt-2 shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" /> */}
                     <Input
                       onChange={onChange}
-                      value={input.email}
-                      name="email"
+                      value={input.user}
+                      name="user"
                       placeholder="Email"
                     />
                     <Input
                       onChange={onChange}
-                      value={input.street}
-                      name="street"
-                      placeholder="Street"
+                      value={input.shippingAddress}
+                      name="shippingAddress"
+                      placeholder="Shipping Address"
                     />
                     <Input
                       onChange={onChange}
@@ -220,8 +239,8 @@ const Checkout = ({ context }) => {
                     />
                     <Input
                       onChange={onChange}
-                      value={input.postal_code}
-                      name="postal_code"
+                      value={input.pincode}
+                      name="pincode"
                       placeholder="Postal Code"
                     />
 
@@ -232,7 +251,7 @@ const Checkout = ({ context }) => {
                 <div className="pl-4 flex flex-1 pt-2 md:pt-8 mt-2 sm:mt-0">
                   <p className="text-sm pr-10 text-left">Subtotal</p>
                   <p className="w-38 flex text-right justify-end">
-                    {DENOMINATION + total}
+                    {DENOMINATION + cartTotal}
                   </p>
                 </div>
                 <div className="pl-4 flex flex-1 my-2">
@@ -244,7 +263,7 @@ const Checkout = ({ context }) => {
                 <div className="md:ml-4 pl-2 flex flex-1 bg-gray-200 pr-4 pb-1 pt-2 mt-2">
                   <p className="text-sm pr-10">Total</p>
                   <p className="font-semibold w-38 flex justify-end">
-                    {DENOMINATION + (total + calculateShipping())}
+                    {DENOMINATION + (cartTotal + calculateShipping())}
                   </p>
                 </div>
                 <div className='pl-4 pt-2'>
@@ -252,7 +271,6 @@ const Checkout = ({ context }) => {
                     full
                     title="Confirm order"
                     type="submit"
-                    disabled={!stripe}
                     onClick={handleSubmit}
                   />
                 </div>

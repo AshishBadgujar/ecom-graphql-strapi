@@ -8,26 +8,29 @@ import QuantityPicker from '../components/QuantityPicker'
 import Image from '../components/Image'
 import Head from 'next/head'
 import CartLink from '../components/CartLink'
+import { useCart } from 'react-use-cart'
+import { useAuth } from '../context/authContext'
+import Alert from '../components/Alert'
 
-const Cart = ({ context }) => {
+const Cart = () => {
+  const { isAuth, logout } = useAuth()
   const [renderClientSideComponent, setRenderClientSideComponent] = useState(false)
   useEffect(() => {
     setRenderClientSideComponent(true)
   }, [])
-  const {
-    numberOfItemsInCart, cart, removeFromCart, total, setItemQuantity
-  } = context
-  const cartEmpty = numberOfItemsInCart === Number(0)
+  const { isEmpty, items, cartTotal, removeItem, addItem } = useCart()
+  if (isEmpty) console.log(isEmpty)
+  if (items) console.log(items)
 
   function increment(item) {
     item.quantity = item.quantity + 1
-    setItemQuantity(item)
+    addItem(item)
   }
 
   function decrement(item) {
     if (item.quantity === 1) return
     item.quantity = item.quantity - 1
-    setItemQuantity(item)
+    addItem(item)
   }
 
   if (!renderClientSideComponent) return null
@@ -48,24 +51,26 @@ const Cart = ({ context }) => {
           <div className="pt-10 pb-8">
             <h1 className="text-5xl font-light">Your Cart</h1>
           </div>
-
           {
-            cartEmpty ? (
+            !isAuth && <Alert text="Login to checkout" />
+          }
+          {
+            isEmpty ? (
               <h3>No items in cart.</h3>
             ) : (
               <div className="flex flex-col">
                 <div>
                   {
-                    cart.map((item) => {
+                    items.map((item) => {
                       return (
                         <div className="border-b py-10" key={item.id}>
                           <div className="flex items-center hidden md:flex">
-                            <Link href={`/product/${slugify(item.name)}`}>
+                            <Link href={`/product/${item.id}`}>
                               <a aria-label={item.name}>
-                                <Image className="w-32 m-0" src={item.image} alt={item.name} />
+                                <Image className="w-32 m-0" src={item.url} alt={item.name} />
                               </a>
                             </Link>
-                            <Link href={`/product/${slugify(item.name)}`}>
+                            <Link href={`/product/${item.id}`}>
                               <a aria-label={item.name}>
                                 <p className="
                                 m-0 pl-10 text-gray-600 w-60
@@ -86,7 +91,7 @@ const Cart = ({ context }) => {
                                 {DENOMINATION + item.price}
                               </p>
                             </div>
-                            <div role="button" onClick={() => removeFromCart(item)} className="
+                            <div role="button" onClick={() => itemTotal(item.id)} className="
                             m-0 ml-10 text-gray-900 text-s cursor-pointer
                             ">
                               <FaTimes />
@@ -94,13 +99,13 @@ const Cart = ({ context }) => {
                           </div>
 
                           <div className="flex items-center flex md:hidden">
-                            <Link href={`/product/${slugify(item.name)}`}>
+                            <Link href={`/product/${item.id}`}>
                               <a>
-                                <Image className="w-32 m-0" src={item.image} alt={item.name} />
+                                <Image className="w-32 m-0" src={item.url} alt={item.name} />
                               </a>
                             </Link>
                             <div>
-                              <Link href={`/product/${slugify(item.name)}`}>
+                              <Link href={`/product/${item.id}`}>
                                 <a aria-label={item.name}>
                                   <p className="
                                   m-0 pl-6 text-gray-600 text-base
@@ -123,7 +128,7 @@ const Cart = ({ context }) => {
                                 </p>
                               </div>
                             </div>
-                            <div role="button" onClick={() => removeFromCart(item)} className="
+                            <div role="button" onClick={() => itemTotal(item.id)} className="
                             m-0 ml-10 text-gray-900 text-s cursor-pointer mr-2
                             ">
                               <FaTimes />
@@ -133,15 +138,15 @@ const Cart = ({ context }) => {
                       )
                     })
                   }
-                </div>  
-            </div>
+                </div>
+              </div>
             )
           }
           <div className="flex flex-1 justify-end py-8">
             <p className="text-sm pr-10">Total</p>
-            <p className="font-semibold tracking-wide">{DENOMINATION + total}</p>
+            <p className="font-semibold tracking-wide">{DENOMINATION + cartTotal}</p>
           </div>
-          {!cartEmpty && (
+          {!isEmpty && isAuth && (
             <Link href="/checkout" className="flex flex-1 justify-end">
               <a aria-label="Check out">
                 <div className="cursor-pointer flex items-center">
