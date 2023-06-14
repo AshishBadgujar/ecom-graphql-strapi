@@ -2,7 +2,7 @@ import Image from '../Image'
 
 const Showcase = ({ imageSrc }) => {
   return (
-    <div className="z-10">
+    <div>
       <Image src={imageSrc} className="w-136" alt="Showcase item" />
     </div>
   )

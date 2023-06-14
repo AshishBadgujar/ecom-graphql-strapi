@@ -10,6 +10,7 @@ import { useQuery } from '@apollo/client'
 import { BACKEND_URL } from '../../apollo-client'
 import ReactMarkdown from 'react-markdown'
 import { useCart } from 'react-use-cart'
+import { toast } from 'react-toastify'
 
 const ItemView = (props) => {
   const { addItem } = useCart()
@@ -32,6 +33,7 @@ const ItemView = (props) => {
       url: BACKEND_URL + image.data.attributes.url,
       quantity: numberOfitems
     })
+    toast("Added to cart!");
   }
 
   function increment() {

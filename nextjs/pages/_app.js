@@ -6,12 +6,12 @@ import { ApolloProvider } from "@apollo/client";
 import client from "../apollo-client";
 import { AuthProvider } from '../context/authContext';
 import { CartProvider } from 'react-use-cart'
-function Ecommerce({ Component, pageProps, categories }) {
+function Ecommerce({ Component, pageProps }) {
   return (
     <ApolloProvider client={client}>
       <AuthProvider>
         <CartProvider>
-          <Layout categories={categories}>
+          <Layout >
             <Component {...pageProps} />
           </Layout>
         </CartProvider>
@@ -20,11 +20,5 @@ function Ecommerce({ Component, pageProps, categories }) {
   )
 }
 
-Ecommerce.getInitialProps = async () => {
-  const categories = await fetchCategories()
-  return {
-    categories
-  }
-}
 
 export default Ecommerce

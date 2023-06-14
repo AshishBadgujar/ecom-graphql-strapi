@@ -42,13 +42,13 @@ const Home = () => {
               designer={products[0].attributes.brand}
             />
           </div>
-          <div className="flex flex-1 justify-center items-center relative">
+          <div className="flex flex-1 justify-center items-center ">
             <Showcase
               imageSrc={BACKEND_URL + products[0].attributes.image.data.attributes.url}
             />
-            <div className="absolute
+            {/* <div className="absolute
               w-48 h-48 sm:w-72 sm:h-72 xl:w-88 xl:h-88
-              bg-white z-0 rounded-full" />
+              bg-white z-0 rounded-full" /> */}
           </div>
         </div>
       </div>

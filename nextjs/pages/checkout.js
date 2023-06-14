@@ -9,6 +9,7 @@ import { v4 as uuid } from "uuid"
 import Button from '../components/Button'
 import { useCart } from 'react-use-cart'
 import { BACKEND_URL } from "../apollo-client";
+import { toast } from 'react-toastify'
 
 // import {
 //   CardElement,
@@ -137,6 +138,7 @@ const Checkout = () => {
     console.log("res=", res)
     // TODO call API
     setOrderCompleted(true)
+    toast("Order Placed!")
     emptyCart()
   }
 
@@ -203,7 +205,7 @@ const Checkout = () => {
             </div>
             <div className="flex flex-1 flex-col md:flex-row">
               <div className="flex flex-1 pt-8 flex-col">
-                <div className="mt-4 pt-10">
+                <div className="mt-4 pt-5">
                   <form onSubmit={handleSubmit}>
                     {errorMessage ? <span className='text-red-500'>{errorMessage}</span> : ""}
                     {/* <Input
@@ -247,20 +249,26 @@ const Checkout = () => {
                   </form>
                 </div>
               </div>
-              <div className="md:pt-20">
-                <div className="pl-4 flex flex-1 pt-2 md:pt-8 mt-2 sm:mt-0">
+              <div className="md:pt-10">
+                <div className="pl-4 flex flex-1 justify-between pt-2 md:pt-8 mt-2 sm:mt-0">
                   <p className="text-sm pr-10 text-left">Subtotal</p>
                   <p className="w-38 flex text-right justify-end">
                     {DENOMINATION + cartTotal}
                   </p>
                 </div>
-                <div className="pl-4 flex flex-1 my-2">
+                <div className="pl-4 flex justify-between flex-1 my-2">
                   <p className="text-sm pr-10">Shipping</p>
                   <p className="w-38 flex justify-end">
                     FREE SHIPPING
                   </p>
                 </div>
-                <div className="md:ml-4 pl-2 flex flex-1 bg-gray-200 pr-4 pb-1 pt-2 mt-2">
+                <div className="pl-4 flex justify-between flex-1 my-2">
+                  <p className="text-sm pr-10">Payment Mode</p>
+                  <p className="w-38 flex justify-end">
+                    Cash on delivery
+                  </p>
+                </div>
+                <div className="md:ml-4 pl-2 flex flex-1 justify-between bg-gray-200 pr-4 pb-1 pt-2 mt-2">
                   <p className="text-sm pr-10">Total</p>
                   <p className="font-semibold w-38 flex justify-end">
                     {DENOMINATION + (cartTotal + calculateShipping())}

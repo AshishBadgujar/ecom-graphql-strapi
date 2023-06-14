@@ -4,15 +4,25 @@ import 'react-toastify/dist/ReactToastify.css'
 import { ToastContainer } from 'react-toastify'
 import { navItemLength } from '../ecommerce.config'
 import { useAuth } from '../context/authContext'
+import { useQuery } from '@apollo/client'
+import { GET_ALL_CATEGORIES } from '../utils/queries'
+import { useState } from 'react'
+import CommandPalette from '../components/CommandPalette'
 
-export default function Layout({ children, categories }) {
+export default function Layout({ children }) {
   const { isAuth, logout } = useAuth()
+  const { data, loading } = useQuery(GET_ALL_CATEGORIES)
+  const [isOpen, setIsOpen] = useState(false);
+  if (loading) return ''
 
-  if (categories.length > navItemLength) {
-    categories = categories.slice(0, navItemLength)
-  }
+  const togglePalette = () => {
+    setIsOpen(!isOpen);
+  };
+
+
   return (
     <div>
+      {isOpen && <CommandPalette togglePalette={togglePalette} />}
       <nav>
         <div >
           <div className="
@@ -27,26 +37,18 @@ export default function Layout({ children, categories }) {
               </Link>
             </div>
             <div className="flex flex-wrap mt-1">
-              <Link href="/">
-                <a aria-label="Home">
-                  <p className="
-                    sm:mr-8 text-left text-smaller mr-4
-                  ">
-                    Home
-                  </p>
-                </a>
-              </Link>
+
               {
-                categories.map((category, index) => (
+                data.categories.data.map((category, index) => (
                   <Link
-                    href={`/category/${slugify(category)}`}
+                    href={`/category/${(category.id)}`}
                     key={index}
                   >
-                    <a aria-label={category}>
+                    <a aria-label={category.attributes.name}>
                       <p className="
                           sm:mr-8 text-left text-smaller mr-4
                         ">
-                        {category.charAt(0).toUpperCase() + category.slice(1)}
+                        {category.attributes.name.charAt(0).toUpperCase() + category.attributes.name.slice(1)}
                       </p>
                     </a>
                   </Link>
@@ -61,6 +63,13 @@ export default function Layout({ children, categories }) {
                   </p>
                 </a>
               </Link>
+            </div>
+            <div className="mr-4 sm:mr-2 max-w-48 sm:max-w-none cursor-pointer" onClick={togglePalette}>
+              <a aria-label="Home" className='text-gray-300'>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </a>
             </div>
           </div>
         </div>
@@ -96,7 +105,15 @@ export default function Layout({ children, categories }) {
           </div>
         </div>
       </footer>
-      <ToastContainer autoClose={3000} />
+      <ToastContainer autoClose={3000} position="bottom-left"
+        hideProgressBar={true}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark" />
     </div>
   )
 }

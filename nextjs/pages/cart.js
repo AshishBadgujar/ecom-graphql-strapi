@@ -18,19 +18,17 @@ const Cart = () => {
   useEffect(() => {
     setRenderClientSideComponent(true)
   }, [])
-  const { isEmpty, items, cartTotal, removeItem, addItem } = useCart()
+  const { isEmpty, items, cartTotal, removeItem, updateItemQuantity } = useCart()
   if (isEmpty) console.log(isEmpty)
   if (items) console.log(items)
 
   function increment(item) {
-    item.quantity = item.quantity + 1
-    addItem(item)
+    updateItemQuantity(item.id, item.quantity + 1);
   }
 
   function decrement(item) {
     if (item.quantity === 1) return
-    item.quantity = item.quantity - 1
-    addItem(item)
+    updateItemQuantity(item.id, item.quantity - 1);
   }
 
   if (!renderClientSideComponent) return null
@@ -91,7 +89,7 @@ const Cart = () => {
                                 {DENOMINATION + item.price}
                               </p>
                             </div>
-                            <div role="button" onClick={() => itemTotal(item.id)} className="
+                            <div role="button" onClick={() => removeItem(item.id)} className="
                             m-0 ml-10 text-gray-900 text-s cursor-pointer
                             ">
                               <FaTimes />
@@ -128,7 +126,7 @@ const Cart = () => {
                                 </p>
                               </div>
                             </div>
-                            <div role="button" onClick={() => itemTotal(item.id)} className="
+                            <div role="button" onClick={() => removeItem(item.id)} className="
                             m-0 ml-10 text-gray-900 text-s cursor-pointer mr-2
                             ">
                               <FaTimes />

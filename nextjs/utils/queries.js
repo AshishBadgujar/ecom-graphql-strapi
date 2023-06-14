@@ -59,3 +59,57 @@ query getProductById($id:ID!){
     }
   }
 `
+
+export const GET_ALL_CATEGORIES = gql`
+query Categories {
+  categories {
+    data {
+      id
+      attributes {
+        name
+      }
+    }
+  }
+}
+`
+export const GET_PRODUCT_BY_CATEGORY = gql`
+query Category($categoryId: ID!) {
+  category(id: $categoryId) {
+    data {
+      attributes {
+        name
+        products {
+          data {
+            id
+            attributes {
+              name
+              price
+              description
+              image {
+                data {
+                  attributes {
+                    url
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`
+
+export const GET_PRODUCT_BY_FILTER = gql`
+query Products($filters: ProductFiltersInput) {
+  products(filters: $filters) {
+    data {
+      id
+      attributes {
+        name
+      }
+    }
+  }
+}
+`

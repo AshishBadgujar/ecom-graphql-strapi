@@ -4,9 +4,18 @@ import { titleIfy, slugify } from '../../utils/helpers'
 import fetchCategories from '../../utils/categoryProvider'
 import inventoryForCategory from '../../utils/inventoryForCategory'
 import CartLink from '../../components/CartLink'
+import { useQuery } from '@apollo/client'
+import { GET_PRODUCT_BY_CATEGORY } from '../../utils/queries'
+import { BACKEND_URL } from '../../apollo-client'
 
-const Category = (props) => {
-  const { inventory, title } = props
+const Category = ({ cid }) => {
+  const { data, loading } = useQuery(GET_PRODUCT_BY_CATEGORY, {
+    variables: { categoryId: cid }
+  })
+
+  if (loading) return <h1>loading...</h1>
+  const inventory = data.category.data.attributes.products.data
+  const title = data.category.data.attributes.name
   return (
     <>
       <CartLink />
@@ -28,42 +37,28 @@ const Category = (props) => {
                   return (
                     <ListItem
                       key={index}
-                      link={`/product/${slugify(item.name)}`}
-                      title={item.name}
-                      price={item.price}
-                      imageSrc={item.image}
+                      link={`/product/${item.id}`}
+                      title={item.attributes.name}
+                      price={item.attributes.price}
+                      imageSrc={BACKEND_URL + item.attributes.image.data.attributes.url}
                     />
                   )
                 })
               }
             </div>
           </div>
-          </div>
+        </div>
       </div>
     </>
   )
 }
 
-export async function getStaticPaths () {
-  const categories = await fetchCategories()
-  const paths = categories.map(category => {
-    return { params: { name: slugify(category) }}
-  })
+export async function getServerSideProps({ params }) {
+  let cid = params.cid;
   return {
-    paths,
-    fallback: false
+    props: { cid }
   }
 }
 
-export async function getStaticProps ({ params }) {
-  const category = params.name.replace(/-/g," ")
-  const inventory = await inventoryForCategory(category)
-  return {
-    props: {
-      inventory,
-      title: category
-    }
-  }
-}
 
 export default Category
